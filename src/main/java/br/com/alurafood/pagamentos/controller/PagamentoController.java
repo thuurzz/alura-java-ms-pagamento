@@ -38,7 +38,7 @@ public class PagamentoController {
         return ResponseEntity.created(endereco).body(pagamento);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<PagamentoDto> alterarPagamento(@Valid @RequestBody PagamentoDto pagamentoDto, @NotNull @PathVariable Long id) {
         var pagamentoAtualizado = pagamentoService.atualizarPagamento(pagamentoDto, id);
         return ResponseEntity.ok(pagamentoAtualizado);
