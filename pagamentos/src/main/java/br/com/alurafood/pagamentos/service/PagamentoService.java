@@ -27,20 +27,23 @@ public class PagamentoService {
     private PedidoClient pedido;
 
     public Page<PagamentoDto> obterTodos(Pageable paginacao) {
-        return pagamentoRepository.findAll(paginacao).map(pagamento -> modelMapper.map(pagamento, PagamentoDto.class));
+        var listaDePagamentos = pagamentoRepository.findAll(paginacao).map(pagamento -> modelMapper.map(pagamento, PagamentoDto.class));
+        listaDePagamentos.forEach(pagamentoDto -> pagamentoDto.setItens(pedido.obterItensDoPedido(pagamentoDto.getPedidoId()).getItens()));
+        return listaDePagamentos;
     }
 
     public PagamentoDto obertPorId(Long id) {
         var pagamento = pagamentoRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        var pagamentoComPedido = modelMapper.map(pagamento, PagamentoDto.class);
+        pagamentoComPedido.setItens(pedido.obterItensDoPedido(pagamento.getPedidoId()).getItens());
 
-        return modelMapper.map(pagamento, PagamentoDto.class);
+        return pagamentoComPedido;
     }
 
     public PagamentoDto criarPagamento(PagamentoDto pagamentoDto) {
         var pagamento = modelMapper.map(pagamentoDto, Pagamento.class);
         pagamento.setStatus(Status.CRIADO);
         pagamento = pagamentoRepository.save(pagamento);
-
         return modelMapper.map(pagamento, PagamentoDto.class);
     }
 
